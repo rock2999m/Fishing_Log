@@ -230,30 +230,6 @@
           </div>
         </div>
       </details>
-
-      <!-- ★追加：秘密情報設定（トークン・キー） -->
-      <div class="rounded-2xl bg-slate-900 border border-slate-800 p-4 mb-4">
-        <h3 class="text-base font-semibold mb-3">認証情報</h3>
-        <p class="text-xs text-slate-400 mb-3">API 認証に必要な秘密情報を設定してください</p>
-        <div class="space-y-3">
-          <!-- Worker URL -->
-          <label class="block">
-            <span class="text-xs text-slate-400">Cloudflare Worker URL</span>
-            <input id="workerUrlEl" type="text" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm" placeholder="https://fishing-trip-api.yuji-fallline2999m.workers.dev" />
-          </label>
-          
-          <!-- Worker 認証トークン -->
-          <label class="block">
-            <span class="text-xs text-slate-400">Worker 認証トークン</span>
-            <input id="workersAuthTokenEl" type="password" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm" placeholder="Worker 認証トークンを入力してください" />
-          </label>
-
-          <div class="flex gap-2">
-            <button id="btnSaveSecrets" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-semibold text-sm">保存</button>
-            <div id="secretsStatus" class="text-sm text-slate-300 self-center"></div>
-          </div>
-        </div>
-      </div>
     </section>
 
     <!-- 釣行の確認（Trips / GViz） -->
@@ -468,80 +444,16 @@
   </div>
 
   <script>
-    // ===== Development: Initialize localStorage for testing =====
-    // ★修正：秘密情報（トークン、キー）をハードコードから削除
-    const devConfig = {
-      // 公開情報のみ（秘密情報は設定画面で入力）
-      'FISHING_TRIP_API_WORKER': 'https://fishing-trip-api.yuji-fallline2999m.workers.dev',
-      'WORKER_PROXY_URL': 'https://noisy-grass-c7e9.yuji-fallline2999m.workers.dev',
-      'TIDE_PROXY_URL': 'https://jolly-voice-b254.yuji-fallline2999m.workers.dev',
-      'WATER_WORKER_URL': 'https://rough-math-5fec.yuji-fallline2999m.workers.dev',
-      'CLOUDINARY_CLOUD_NAME': 'drcaeidmm',
-      'CLOUDINARY_UPLOAD_PRESET': 'unsigned'
-      // ★削除：WORKERS_AUTH_TOKEN（ユーザーが設定画面で入力）
-      // ★削除：RAPIDAPI_KEY（ユーザーが設定画面で入力）
-    };
-
-    // ★追加：ローカルホスト環境かを判定
-    const isLocalhost = () => {
-      return window.location.hostname === 'localhost' || 
-             window.location.hostname === '127.0.0.1' ||
-             window.location.hostname === '::1';
-    };
-
-    // ★追加：ローカルホストのみ devConfig を初期化
-    const initializeDevConfig = () => {
-      if (!isLocalhost()) {
-        console.log('✅ Production environment - skipping devConfig');
-        return;
-      }
-
-      console.log('🔧 Development environment - initializing devConfig');
-      Object.entries(devConfig).forEach(([key, value]) => {
-        if (!localStorage.getItem(key)) {
-          localStorage.setItem(key, value);
-        }
-      });
-    };
-
-    initializeDevConfig();
-
-    // ===== Configuration (環境変数から読み込み、デフォルト値を使用) =====
-    const CONFIG = {
-      API: {
-        FISHING_TRIP_API_WORKER: localStorage.getItem('FISHING_TRIP_API_WORKER') || 'https://fishing-trip-api.yuji-fallline2999m.workers.dev',
-        WORKERS_AUTH_TOKEN: localStorage.getItem('WORKERS_AUTH_TOKEN') || "",
-        WORKER_PROXY_URL: localStorage.getItem('WORKER_PROXY_URL') || "",
-        TIDE_PROXY_URL: localStorage.getItem('TIDE_PROXY_URL') || "",
-        WATER_WORKER_URL: localStorage.getItem('WATER_WORKER_URL') || "",
-        CLOUDINARY_CLOUD_NAME: localStorage.getItem('CLOUDINARY_CLOUD_NAME') || "drcaeidmm",
-        CLOUDINARY_UPLOAD_PRESET: localStorage.getItem('CLOUDINARY_UPLOAD_PRESET') || "unsigned"
-        // ★削除：RAPIDAPI_KEY（Worker の環境変数で管理）
-      },
-      TIMEOUT: {
-        WEATHER: 10000,
-        TIDE: 8000,
-        WATER: 8000,
-        GAS: 15000
-      }
-    };
-
-    // ★デバッグ：初期化時の CONFIG 値を表示
-    console.log('[CONFIG] Initial FISHING_TRIP_API_WORKER:', CONFIG.API.FISHING_TRIP_API_WORKER);
-    console.log('[CONFIG] Initial WORKERS_AUTH_TOKEN:', CONFIG.API.WORKERS_AUTH_TOKEN ? '***' : 'empty');
-    console.log('[localStorage] FISHING_TRIP_API_WORKER:', localStorage.getItem('FISHING_TRIP_API_WORKER'));
-    console.log('[localStorage] WORKERS_AUTH_TOKEN:', localStorage.getItem('WORKERS_AUTH_TOKEN') ? '***' : 'empty');
-
     // ===== Logger =====
-    const DEBUG_WATER = true; // 必要に応じて true/false で出力を切替
+   const DEBUG_WATER = true; // 必要に応じて true/false で出力を切替
 
-    window.LOG = window.LOG || {};
-    window.LOG.geo  = window.LOG.geo  || ((...a)=>console.debug("[Geo]", ...a));
-    window.LOG.wx   = window.LOG.wx   || ((...a)=>console.warn("[Weather]", ...a));
-    window.LOG.app  = window.LOG.app  || ((...a)=>console.debug("[FishLog]", ...a));
-    window.LOG.tide = window.LOG.tide || ((...a)=>console.debug("[Tide]", ...a));
-    // ★追加: 水温専用ロガー
-    window.LOG.wt   = window.LOG.wt   || ((...a)=>console.debug("[WaterTemp]", ...a));
+      window.LOG = window.LOG || {};
+      window.LOG.geo  = window.LOG.geo  || ((...a)=>console.debug("[Geo]", ...a));
+      window.LOG.wx   = window.LOG.wx   || ((...a)=>console.warn("[Weather]", ...a));
+      window.LOG.app  = window.LOG.app  || ((...a)=>console.debug("[FishLog]", ...a));
+      window.LOG.tide = window.LOG.tide || ((...a)=>console.debug("[Tide]", ...a));
+      // ★追加: 水温専用ロガー
+      window.LOG.wt   = window.LOG.wt   || ((...a)=>console.debug("[WaterTemp]", ...a));
 
     // ===== ナビゲーション =====
     const navHome = document.getElementById('navHome');
@@ -619,7 +531,7 @@
     }
 
     // ===== OWM（開始/終了時の天気）- Cloudflare Worker プロキシ経由 =====
-    const WORKER_PROXY_URL = CONFIG.API.WORKER_PROXY_URL;
+    const WORKER_PROXY_URL = "https://noisy-grass-c7e9.yuji-fallline2999m.workers.dev";
     
     // ★テスト：Worker プロキシが起動したらすぐテストする
     (async () => {
@@ -938,9 +850,9 @@
     const POINTS_SHEET_NAME = "地点リスト";      // ★追加: 水温地点のマスタ（BuildPointsListが作る）
 
     // （※ 既存の Workers を使用：水温も TIDE_PROXY_URL を使う）
-    const TIDE_PROXY_URL = CONFIG.API.TIDE_PROXY_URL;
+    const TIDE_PROXY_URL = "https://jolly-voice-b254.yuji-fallline2999m.workers.dev"; // ←置き換え必須（既存値）
         // ★水温API用 Worker URL（既存のものを使用）
-    const WATER_WORKER_URL = CONFIG.API.WATER_WORKER_URL; 
+    const WATER_WORKER_URL = "https://rough-math-5fec.yuji-fallline2999m.workers.dev/"; 
 
     // ★修正：シートID を GAS から動的に取得する
     let SHEET_ID = ""; // GAS から起動時に取得
@@ -1028,20 +940,8 @@
         const id = (sheetId || SHEET_ID).trim();
         if (!id) throw new Error('Sheet ID が指定されていません');
         
-        // ★修正：Worker 経由で GAS にアクセス（secrets 保護）
-        const workerUrl = CONFIG.API.FISHING_TRIP_API_WORKER + '/api/getSheetData';
-        const res = await fetch(workerUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Auth-Token': CONFIG.API.WORKERS_AUTH_TOKEN
-          },
-          body: JSON.stringify({
-            sheetId: id,
-            sheetName: sheetName
-          })
-        });
-        
+        const url = `${UPLOAD_ENDPOINT}?action=getSheetData&sheetId=${encodeURIComponent(id)}&sheetName=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
+        const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
         if (!json.ok) throw new Error(json.error || 'Unknown error');
@@ -1083,30 +983,15 @@
     // ★追加：GAS から SHEET_ID を取得
     async function initializeSheetId() {
       try {
-        // ★修正：Worker 経由で GAS エンドポイントを呼び出す
-        const workerUrl = CONFIG.API.FISHING_TRIP_API_WORKER + '/api/getSheetConfig';
-        
-        console.log('[initializeSheetId] CONFIG.API.FISHING_TRIP_API_WORKER:', CONFIG.API.FISHING_TRIP_API_WORKER);
-        console.log('[initializeSheetId] workerUrl:', workerUrl);
-        console.log('[initializeSheetId] AUTH_TOKEN:', CONFIG.API.WORKERS_AUTH_TOKEN ? '***' : 'empty');
-        
-        if (!workerUrl || !CONFIG.API.FISHING_TRIP_API_WORKER) {
-          console.warn('[Init] FISHING_TRIP_API_WORKER not set');
-          return;
-        }
-        
-        const res = await fetch(workerUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Auth-Token': CONFIG.API.WORKERS_AUTH_TOKEN
-          },
-          body: JSON.stringify({ action: 'getSheetConfig' })
-        });
+        const url = `${UPLOAD_ENDPOINT}?action=getSheetConfig&_=${Date.now()}`;
+        console.log('[Init] Fetching SHEET_ID from:', url);
+        const res = await fetch(url);
         const json = await res.json();
+        console.log('[Init] Response:', json);
         
         if (json.ok && json.sheetId) {
           SHEET_ID = json.sheetId;
+          console.log('[Init] SHEET_ID loaded from GAS:', SHEET_ID);
         } else {
           console.warn('[Init] GAS returned not ok or no sheetId:', json);
         }
@@ -1161,13 +1046,16 @@
 
     document.getElementById('btnLoadSheet').onclick = async () => {
       try {
+        console.log('[btnLoadSheet] Starting catch load with SHEET_ID:', SHEET_ID, 'SHEET_NAME:', SHEET_NAME);
         const id = SHEET_ID.trim(), sheet = SHEET_NAME.trim();
         sheetStatus.textContent = '読込中...';
         remoteCatchList.innerHTML=''; detailWrap.classList.add('hidden');
         if (!id || !sheet) throw new Error('シートID/シート名が空です');
 
         // 1) Trips を先に読み、tripId → 月情報マップを作る
+        console.log('[btnLoadSheet] Loading Trips moon map...');
         tripsById = await loadTripsMoonMap();
+        console.log('[btnLoadSheet] Trips moon map loaded, items:', Object.keys(tripsById).length);
 
         // 2) Catches を読み込む（SHEET_ID を明示的に渡す）
         console.log('[btnLoadSheet] Loading Catches sheet...');
@@ -1312,7 +1200,9 @@
           });
         }
         
+        console.log('[loadTripsMoonMap] Loading with SHEET_ID:', SHEET_ID);
         const rows = await loadSheetViaGAS(TRIPS_SHEET_NAME, SHEET_ID);
+        console.log('[loadTripsMoonMap] Loaded rows:', rows?.length || 0);
         if (!rows || rows.length < 2) return {};
         const headers = rows[0].map(h=>String(h||'').trim());
         const idxOf = name => headers.findIndex(h => h === name);
@@ -1912,26 +1802,11 @@
     const imgPreview=document.getElementById('imgPreview');
     const modalTitle=document.getElementById('modalTitle');
 
-    // 画像アップロード（CONFIG から毎回読み込み）
-
-    // ★修正：SHEET_ID を優先で取得してから他の処理を実行
-    (async () => {
-      try {
-        console.log('[Init] Starting SHEET_ID initialization...');
-        
-        // ★追加：トークンが空の場合は警告して、ユーザーに入力を促す
-        if (!CONFIG.API.WORKERS_AUTH_TOKEN) {
-          console.warn('[Init] WORKERS_AUTH_TOKEN is empty. Please set it in Settings.');
-          alert('⚠️ 認証トークンが設定されていません。\nSettings タブで WORKERS_AUTH_TOKEN を入力してください。');
-          return;
-        }
-        
-        await initializeSheetId();
-        console.log('[Init] SHEET_ID initialization complete. SHEET_ID:', SHEET_ID);
-      } catch (err) {
-        console.error('[Init] SHEET_ID initialization failed:', err);
-      }
-    })();
+    // 画像アップロード
+    const UPLOAD_ENDPOINT = "https://script.google.com/macros/s/AKfycbyhgEx4eUqaGYg81rtb0HTv0JFAzl3EcEJNCidikJefs3f3zo03AcKC53kKTaul_JfbBg/exec";
+ 
+    // ★追加：ページ読み込み時に GAS から SHEET_ID を初期化
+    initializeSheetId();
 
     // ===== Settings UI 機能 =====
     // 初期化：GAS から読み込むため、初期値は空にしておく
@@ -1945,16 +1820,9 @@
           return;
         }
         
-        // ★修正：Worker 経由で GAS に送信（secrets 保護）
-        const workerUrl = CONFIG.API.FISHING_TRIP_API_WORKER + '/api/setSpreadsheetId';
-        const res = await fetch(workerUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Auth-Token': CONFIG.API.WORKERS_AUTH_TOKEN
-          },
-          body: JSON.stringify({ spreadsheetId: newId })
-        });
+        // GAS に送信（Trips アクション使用）
+        const url = `${UPLOAD_ENDPOINT}?action=setTripsSpreadsheetId&spreadsheetId=${encodeURIComponent(newId)}`;
+        const res = await fetch(url);
         const json = await res.json();
         
         if (json.ok) {
@@ -1976,49 +1844,6 @@
 
     // ボタンのオンクリック設定
     if (btnSaveSheetConfig) btnSaveSheetConfig.onclick = saveSheetConfigToGAS;
-
-    // ★追加：秘密情報（トークン・キー）の保存関数
-    function saveAuthToken() {
-      const workerUrl = (document.getElementById('workerUrlEl')?.value || '').trim();
-      const token = (document.getElementById('workersAuthTokenEl')?.value || '').trim();
-      const status = document.getElementById('secretsStatus');
-      
-      if (!token) {
-        if (status) status.textContent = 'トークンを入力してください';
-        return;
-      }
-      
-      localStorage.setItem('WORKERS_AUTH_TOKEN', token);
-      if (workerUrl) {
-        localStorage.setItem('FISHING_TRIP_API_WORKER', workerUrl);
-        // CONFIG も更新
-        CONFIG.API.FISHING_TRIP_API_WORKER = workerUrl;
-      }
-      if (status) {
-        status.textContent = '✓ 保存しました';
-        setTimeout(() => { if (status) status.textContent = ''; }, 2000);
-      }
-      
-      document.getElementById('workersAuthTokenEl').value = '';
-    }
-
-    // ★追加：秘密情報の一括保存ボタンハンドラ
-    function saveSecretsHandler() {
-      const workerUrl = (document.getElementById('workerUrlEl')?.value || '').trim();
-      const authToken = (document.getElementById('workersAuthTokenEl')?.value || '').trim();
-      const status = document.getElementById('secretsStatus');
-      
-      if (!authToken) {
-        if (status) status.textContent = 'トークンを入力してください';
-        return;
-      }
-      
-      saveAuthToken();
-    }
-
-    if (document.getElementById('btnSaveSecrets')) {
-      document.getElementById('btnSaveSecrets').onclick = saveSecretsHandler;
-    }
 
     function fileToDataURL(file){
       return new Promise((res, rej)=>{
@@ -2054,8 +1879,9 @@
 
     // ★追加: Cloudinary経由でEXIF(GPS)をフロント側で取得する関数
     async function fetchExifFromCloudinary(file) {
-      const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CONFIG.API.CLOUDINARY_CLOUD_NAME}/image/upload`;
-      const CLOUDINARY_UPLOAD_PRESET = CONFIG.API.CLOUDINARY_UPLOAD_PRESET;
+      const CLOUDINARY_UPLOAD_URL = "https://api.cloudinary.com/v1_1/drcaeidmm/image/upload";
+      const CLOUDINARY_UPLOAD_PRESET = "unsigned";
+      const RAPIDAPI_KEY = "ad55464378msh79fde417152f21fp17728ajsne27a64b29b75";
 
       // 1. Cloudinaryへアップロード
       const formData = new FormData();
@@ -2069,20 +1895,16 @@
 
       const imageUrl = uploadJson.secure_url;
 
-      // ★修正：Worker 経由で EXIF を取得（RapidAPI キーは Worker が管理）
-      const exifRes = await fetch(CONFIG.API.FISHING_TRIP_API_WORKER + '/api/exif', {
-        method: "POST",
+      // 2. RapidAPI metadata-extractorでEXIF取得
+      const exifRes = await fetch(`https://metadata-extractor.p.rapidapi.com/?url=${encodeURIComponent(imageUrl)}`, {
+        method: "GET",
         headers: {
-          "Content-Type": "application/json",
-          "X-Auth-Token": CONFIG.API.WORKERS_AUTH_TOKEN
-        },
-        body: JSON.stringify({ imageUrl: imageUrl })
+          "x-rapidapi-key": RAPIDAPI_KEY,
+          "x-rapidapi-host": "metadata-extractor.p.rapidapi.com"
+        }
       });
       const exifJson = await exifRes.json();
 
-      // Worker からの応答を処理
-      if (!exifJson.Composite) return null;
-      
       const latStr = exifJson?.Composite?.GPSLatitude;
       const lonStr = exifJson?.Composite?.GPSLongitude;
       const dateTime = exifJson?.EXIF?.DateTimeOriginal || "不明";
@@ -2120,14 +1942,9 @@
       };
 
       setProgress('アップロード中...');
-      // ★修正：Worker 経由で GAS にアップロード（secrets 保護）
-      const workerUrl = CONFIG.API.FISHING_TRIP_API_WORKER + '/api/upload';
-      const res = await fetch(workerUrl, {
+      const res = await fetch(UPLOAD_ENDPOINT, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Auth-Token": CONFIG.API.WORKERS_AUTH_TOKEN
-        },
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
         body: JSON.stringify(payload)
       });
       let j={}; try{ j = await res.json(); }catch{}
@@ -2210,19 +2027,15 @@
           try {
             console.log('[TideImageUpload] Fetching via proxy:', filename);
             
-            // ★修正：Worker 経由で GAS にリクエスト（secrets 保護）
+            // GASにファイル名を送信してプロキシ経由でダウンロード＆アップロード
             const proxyPayload = {
               action: 'fetchTideImageViaProxy',
               filename: filename
             };
 
-            const workerUrl = CONFIG.API.FISHING_TRIP_API_WORKER + '/api/upload';
-            const proxyRes = await fetch(workerUrl, {
+            const proxyRes = await fetch(UPLOAD_ENDPOINT, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-Auth-Token': CONFIG.API.WORKERS_AUTH_TOKEN
-              },
+              headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
               body: JSON.stringify(proxyPayload)
             });
 
@@ -2320,19 +2133,6 @@
 
     async function loadHarborsFromSheet(){
       if (harborCache) return harborCache;
-      
-      // ★追加：SHEET_ID が取得されるまで待機
-      if (!SHEET_ID) {
-        console.log('[loadHarborsFromSheet] Waiting for SHEET_ID...');
-        await new Promise(resolve => {
-          const check = () => {
-            if (SHEET_ID) resolve();
-            else setTimeout(check, 100);
-          };
-          setTimeout(check, 100);
-        });
-      }
-      
       const rows = await loadSheetViaGAS(HARBOR_SHEET_NAME, SHEET_ID);
       if (!rows || rows.length < 2) throw new Error("港コード一覧のデータが見つかりません");
       const headers = rows[0].map(h=>String(h||'').trim());
@@ -2690,19 +2490,6 @@
         if (DEBUG_WATER) LOG.wt("use cached points:", { count: pointsCache.mapped?.length ?? 0 });
         return pointsCache;
       }
-      
-      // ★追加：SHEET_ID が取得されるまで待機
-      if (!SHEET_ID) {
-        if (DEBUG_WATER) LOG.wt("loadWaterTempPointsFromSheet: Waiting for SHEET_ID...");
-        await new Promise(resolve => {
-          const check = () => {
-            if (SHEET_ID) resolve();
-            else setTimeout(check, 100);
-          };
-          setTimeout(check, 100);
-        });
-      }
-      
       if (DEBUG_WATER) LOG.wt("loadWaterTempPointsFromSheet: start", { SHEET_ID, POINTS_SHEET_NAME });
 
       const rows = await loadSheetViaGAS(POINTS_SHEET_NAME, SHEET_ID);
@@ -4955,9 +4742,9 @@
           if (console?.table) console.table(preview);
         } catch(_){}
 
-        const res = await fetch(CONFIG.API.FISHING_TRIP_API_WORKER + '/api/upload', {
+        const res = await fetch(UPLOAD_ENDPOINT, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Auth-Token': CONFIG.API.WORKERS_AUTH_TOKEN },
+          headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
           body: JSON.stringify(payload)
         });
         const text = await res.text();
@@ -5650,9 +5437,9 @@
       const remain=[];
       for (const item of q){
         try{
-          const res = await fetch(CONFIG.API.FISHING_TRIP_API_WORKER + '/api/upload', {
+          const res = await fetch(UPLOAD_ENDPOINT, {
             method:'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Auth-Token': CONFIG.API.WORKERS_AUTH_TOKEN },
+            headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
             body: JSON.stringify(item.payload)
           });
           if (!res.ok){ remain.push(item); continue; }
@@ -6966,14 +6753,10 @@
           payloadSize: JSON.stringify(payload).length 
         });
 
-        // ★修正：手動アップロードと同じ方式で Worker 経由で送信（secrets 保護）
-        const workerUrl = CONFIG.API.FISHING_TRIP_API_WORKER + '/api/upload';
-        const response = await fetch(workerUrl, {
+        // 手動アップロードと同じ方式で送信
+        const response = await fetch(UPLOAD_ENDPOINT, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Auth-Token': CONFIG.API.WORKERS_AUTH_TOKEN
-          },
+          headers: { 'Content-Type': 'text/plain; charset=UTF-8' },
           body: JSON.stringify(payload)
         });
 
@@ -7014,5 +6797,4 @@
   </script>
 </body>
 </html>
-
 
