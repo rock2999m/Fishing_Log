@@ -526,6 +526,12 @@
       }
     };
 
+    // ★デバッグ：初期化時の CONFIG 値を表示
+    console.log('[CONFIG] Initial FISHING_TRIP_API_WORKER:', CONFIG.API.FISHING_TRIP_API_WORKER);
+    console.log('[CONFIG] Initial WORKERS_AUTH_TOKEN:', CONFIG.API.WORKERS_AUTH_TOKEN ? '***' : 'empty');
+    console.log('[localStorage] FISHING_TRIP_API_WORKER:', localStorage.getItem('FISHING_TRIP_API_WORKER'));
+    console.log('[localStorage] WORKERS_AUTH_TOKEN:', localStorage.getItem('WORKERS_AUTH_TOKEN') ? '***' : 'empty');
+
     // ===== Logger =====
     const DEBUG_WATER = true; // 必要に応じて true/false で出力を切替
 
@@ -1079,6 +1085,10 @@
       try {
         // ★修正：Worker 経由で GAS エンドポイントを呼び出す
         const workerUrl = CONFIG.API.FISHING_TRIP_API_WORKER + '/api/getSheetConfig';
+        
+        console.log('[initializeSheetId] CONFIG.API.FISHING_TRIP_API_WORKER:', CONFIG.API.FISHING_TRIP_API_WORKER);
+        console.log('[initializeSheetId] workerUrl:', workerUrl);
+        console.log('[initializeSheetId] AUTH_TOKEN:', CONFIG.API.WORKERS_AUTH_TOKEN ? '***' : 'empty');
         
         if (!workerUrl || !CONFIG.API.FISHING_TRIP_API_WORKER) {
           console.warn('[Init] FISHING_TRIP_API_WORKER not set');
