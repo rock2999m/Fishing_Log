@@ -236,6 +236,12 @@
         <h3 class="text-base font-semibold mb-3">認証情報</h3>
         <p class="text-xs text-slate-400 mb-3">API 認証に必要な秘密情報を設定してください</p>
         <div class="space-y-3">
+          <!-- Worker URL -->
+          <label class="block">
+            <span class="text-xs text-slate-400">Cloudflare Worker URL</span>
+            <input id="workerUrlEl" type="text" class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm" placeholder="https://fishing-trip-api.yuji-fallline2999m.workers.dev" />
+          </label>
+          
           <!-- Worker 認証トークン -->
           <label class="block">
             <span class="text-xs text-slate-400">Worker 認証トークン</span>
@@ -1963,6 +1969,7 @@
 
     // ★追加：秘密情報（トークン・キー）の保存関数
     function saveAuthToken() {
+      const workerUrl = (document.getElementById('workerUrlEl')?.value || '').trim();
       const token = (document.getElementById('workersAuthTokenEl')?.value || '').trim();
       const status = document.getElementById('secretsStatus');
       
@@ -1972,17 +1979,20 @@
       }
       
       localStorage.setItem('WORKERS_AUTH_TOKEN', token);
+      if (workerUrl) {
+        localStorage.setItem('FISHING_TRIP_API_WORKER', workerUrl);
+      }
       if (status) {
         status.textContent = '✓ 保存しました';
         setTimeout(() => { if (status) status.textContent = ''; }, 2000);
       }
       
       document.getElementById('workersAuthTokenEl').value = '';
-      console.log('[Settings] Worker Auth Token saved to localStorage');
     }
 
     // ★追加：秘密情報の一括保存ボタンハンドラ
     function saveSecretsHandler() {
+      const workerUrl = (document.getElementById('workerUrlEl')?.value || '').trim();
       const authToken = (document.getElementById('workersAuthTokenEl')?.value || '').trim();
       const status = document.getElementById('secretsStatus');
       
