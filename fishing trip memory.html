@@ -485,16 +485,8 @@
 
     // ★追加：ローカルホストのみ devConfig を初期化
     const initializeDevConfig = () => {
-      if (!isLocalhost()) {
-        console.log('✅ Production environment - skipping devConfig');
-        return;
-      }
-
-      console.log('🔧 Development environment - initializing devConfig');
       Object.entries(devConfig).forEach(([key, value]) => {
-        if (!localStorage.getItem(key)) {
-          localStorage.setItem(key, value);
-        }
+        localStorage.setItem(key, value);
       });
     };
 
